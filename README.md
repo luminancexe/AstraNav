@@ -1,4 +1,4 @@
-# 🚀 AstraNav — Aerospace Navigation & Pathfinding Engine
+# AstraNav — Aerospace Navigation & Pathfinding Engine
 
 A high-performance aerospace simulator and optimal flight corridor planner implemented in **Java (Standard Edition)** paired with an interactive **HTML5 Radar Operations Dashboard**.
 
@@ -6,17 +6,17 @@ This project models global and regional airspace, oceanic waypoint tracks, jetst
 
 ---
 
-## 📑 Table of Contents
-1. [Core DSA Concepts Implemented](#-core-dsa-concepts-implemented)
-2. [Aerospace Physics & Geodesy Models](#-aerospace-physics--geodesy-models)
-3. [Architecture Overview](#-architecture-overview)
-4. [Quick Start & Running the Project](#-quick-start--running-the-project)
-5. [Interactive Web Radar Dashboard](#-interactive-web-radar-dashboard)
-6. [Automated Test Suite & Benchmarks](#-automated-test-suite--benchmarks)
+## Table of Contents
+1. [Core DSA Concepts Implemented](#core-dsa-concepts-implemented)
+2. [Aerospace Physics & Geodesy Models](#aerospace-physics--geodesy-models)
+3. [Architecture Overview](#architecture-overview)
+4. [Quick Start & Running the Project](#quick-start--running-the-project)
+5. [Interactive Web Radar Dashboard](#interactive-web-radar-dashboard-features)
+6. [Automated Test Suite & Benchmarks](#automated-test-suite--benchmarks)
 
 ---
 
-## 🧠 Core DSA Concepts Implemented
+## Core DSA Concepts Implemented
 
 | DSA Concept | Implementation File | Key Operations & Complexity | Purpose in Flight Planning |
 | :--- | :--- | :--- | :--- |
@@ -34,7 +34,7 @@ This project models global and regional airspace, oceanic waypoint tracks, jetst
 
 ---
 
-## ✈️ Aerospace Physics & Geodesy Models
+## Aerospace Physics & Geodesy Models
 
 ### 1. Great-Circle Geodesic Distance (Haversine Formula)
 Computes the true spherical distance between two aeronautical fixes $(\phi_1, \lambda_1)$ and $(\phi_2, \lambda_2)$:
@@ -79,7 +79,7 @@ $$
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
 d:\Projects\AstraNav/
@@ -103,7 +103,7 @@ d:\Projects\AstraNav/
 
 ---
 
-## ⚡ Quick Start & Running the Project
+## Quick Start & Running the Project
 
 ### Prerequisites
 - Java SE JDK 17+ (JDK 25 LTS verified).
@@ -128,7 +128,7 @@ Then open your browser at **`http://localhost:8080`**.
 
 ---
 
-## 🌐 Interactive Web Radar Dashboard Features
+## Interactive Web Radar Dashboard Features
 
 - **Interactive Flight Radar**: Full zoom and pan across global aeronautical coordinates.
 - **Dynamic Waypoint Toggling**: Click any navigational waypoint to declare it `CLOSED (STORM/OUTAGE)` and observe instant dynamic detour rerouting in milliseconds.
@@ -142,7 +142,7 @@ Then open your browser at **`http://localhost:8080`**.
 
 ---
 
-## 🧪 Automated Test Suite & Benchmarks
+## Automated Test Suite & Benchmarks
 
 Run the complete 29-test automated test suite:
 ```cmd
