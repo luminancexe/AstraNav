@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AstraNav — Aerospace Navigation & Pathfinding Engine</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- HUD Header -->
+  <header class="hud-header">
+    <div class="logo-group">
+      <div class="radar-pulse-icon">
+        <span class="pulse-ring"></span>
+        <span class="pulse-dot"></span>
+      </div>
+      <div>
+        <h1 class="hud-title">ASTRA<span class="highlight">NAV</span> // ENGINE</h1>
+        <p class="hud-subtitle">AEROSPACE NAVIGATION &amp; PATHFINDING ENGINE (JAVA BACKEND)</p>
+      </div>
+    </div>
+
+    <div class="hud-telemetry-header">
+      <div class="status-badge" id="backend-status">
+        <span class="status-indicator online"></span>
+        <span>JAVA ENGINE: <strong id="engine-status-text">CONNECTED</strong></span>
+      </div>
+      <div class="status-badge">
+        <span class="status-indicator active"></span>
+        <span>ACTIVE NODES: <strong id="header-node-count">--</strong></span>
+      </div>
+      <div class="status-badge">
+        <span class="status-indicator active"></span>
+        <span>AIRWAYS: <strong id="header-edge-count">--</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mission Control Tool Bar -->
+  <nav class="control-bar">
+    <div class="control-section">
+      <label for="select-origin">ORIGIN</label>
+      <select id="select-origin" class="cyber-select"></select>
+    </div>
+
+    <div class="control-arrow">➔</div>
+
+    <div class="control-section">
+      <label for="select-destination">DESTINATION</label>
+      <select id="select-destination" class="cyber-select"></select>
+    </div>
+
+    <div class="control-divider"></div>
+
+    <div class="control-section">
+      <label for="select-algorithm">ALGORITHM (DSA)</label>
+      <select id="select-algorithm" class="cyber-select">
+        <option value="ASTAR" selected>A* Search (Haversine Heuristic)</option>
+        <option value="DIJKSTRA">Dijkstra's Algorithm (Min-Heap)</option>
+        <option value="BFS">BFS (Minimum Waypoint Hops)</option>
+        <option value="YEN_K">Yen's K-Shortest (Top 4 Alternatives)</option>
+        <option value="DFS">DFS Backtracking (Enumerate Corridors)</option>
+      </select>
+    </div>
+
+    <div class="control-section">
+      <label for="select-objective">OPTIMIZATION OBJECTIVE</label>
+      <select id="select-objective" class="cyber-select">
+        <option value="DISTANCE" selected>Shortest Distance (km)</option>
+        <option value="TIME">Fastest Route (Wind-Adjusted)</option>
+        <option value="FUEL">Lowest Fuel Consumption (kg)</option>
+      </select>
+    </div>
+
+    <div class="control-section">
+      <label for="select-aircraft">AIRCRAFT PROFILE</label>
+      <select id="select-aircraft" class="cyber-select">
+        <option value="B787" selected>Boeing 787-9 Dreamliner (Commercial Jet)</option>
+        <option value="B748F">Boeing 747-8 Freighter (Heavy Cargo)</option>
+        <option value="MQ9">MQ-9 Reaper UAV (Long-Range Drone)</option>
+        <option value="EVTOL">AeroSky eVTOL (Urban Air Mobility)</option>
+      </select>
+    </div>
+
+    <div class="control-actions">
+      <button id="btn-compute" class="btn btn-primary">
+        <span class="btn-icon">⚡</span> COMPUTE ROUTE
+      </button>
+      <button id="btn-animate" class="btn btn-secondary">
+        <span class="btn-icon">▶</span> SIMULATE FLIGHT
+      </button>
+      <button id="btn-benchmark" class="btn btn-accent">
+        <span class="btn-icon">📊</span> DSA BENCHMARK
+      </button>
+      <button id="btn-reset" class="btn btn-danger" title="Restore all disabled waypoints & no-fly zones">
+        ↺ RESET GRAPH
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Workspace -->
+  <main class="main-layout">
+    <!-- Map Canvas Viewport -->
+    <div class="viewport-panel">
+      <div class="map-hud-overlay top-left">
+        <div class="radar-coords">
+          <div>LAT/LON: <span id="mouse-coords">--°N, --°W</span></div>
+          <div>PROJECTION: MERCATOR GEO-SPHERICAL</div>
+          <div>WIND ALOFT: <span class="accent-text">JETSTREAM ACTIVE (265° @ 95 kts)</span></div>
+        </div>
+      </div>
+
+      <div class="map-hud-overlay top-right">
+        <div class="layer-toggles">
+          <label class="hud-toggle">
+            <input type="checkbox" id="chk-airways" checked />
+            <span class="toggle-box"></span> Airways
+          </label>
+          <label class="hud-toggle">
+            <input type="checkbox" id="chk-waypoints" checked />
+            <span class="toggle-box"></span> Waypoints
+          </label>
+          <label class="hud-toggle">
+            <input type="checkbox" id="chk-winds" checked />
+            <span class="toggle-box"></span> Wind Vectors
+          </label>
+          <label class="hud-toggle">
+            <input type="checkbox" id="chk-zones" checked />
+            <span class="toggle-box"></span> No-Fly Zones
+          </label>
+          <label class="hud-toggle">
+            <input type="checkbox" id="chk-search-tree" checked />
+            <span class="toggle-box"></span> DSA Explored Nodes
+          </label>
+        </div>
+      </div>
+
+      <!-- Quick Action Floating Overlay -->
+      <div class="map-hud-overlay bottom-left">
+        <div class="interactive-hint">
+          <span class="key-tag">TIP</span> Click any waypoint to mark it <strong>UNAVAILABLE / STORM-BLOCKED</strong> to test real-time dynamic rerouting!
+        </div>
+      </div>
+
+      <div class="map-hud-overlay bottom-right">
+        <div class="map-controls">
+          <button id="btn-zoom-in" class="map-btn" title="Zoom In">+</button>
+          <button id="btn-zoom-out" class="map-btn" title="Zoom Out">−</button>
+          <button id="btn-zoom-reset" class="map-btn" title="Reset View">⌂</button>
+        </div>
+      </div>
+
+      <canvas id="flight-canvas"></canvas>
+    </div>
+
+    <!-- Right Sidebar Telemetry & DSA Analytics -->
+    <aside class="sidebar-panel">
+      <!-- Flight Telemetry HUD Card -->
+      <div class="telemetry-card">
+        <div class="card-header">
+          <span class="card-icon">✈</span>
+          <h3>FLIGHT MISSION TELEMETRY</h3>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-box">
+            <span class="metric-label">TOTAL DISTANCE</span>
+            <span class="metric-value" id="val-distance">-- <small>km</small></span>
+            <span class="metric-sub" id="val-distance-nm">-- NM</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">FLIGHT TIME</span>
+            <span class="metric-value" id="val-time">--</span>
+            <span class="metric-sub" id="val-time-hrs">-- hrs</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">EST. FUEL BURN</span>
+            <span class="metric-value" id="val-fuel">-- <small>kg</small></span>
+            <span class="metric-sub" id="val-fuel-burnrate">-- kg/h</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">WAYPOINT HOPS</span>
+            <span class="metric-value" id="val-hops">--</span>
+            <span class="metric-sub" id="val-hop-nodes">0 intermediate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DSA Performance & Complexity Card -->
+      <div class="telemetry-card">
+        <div class="card-header">
+          <span class="card-icon">⚡</span>
+          <h3>DSA ALGORITHM ANALYTICS</h3>
+        </div>
+        <div class="dsa-analytics">
+          <div class="dsa-row">
+            <span class="dsa-key">Active Solver:</span>
+            <span class="dsa-val highlight" id="dsa-solver-name">A* Search</span>
+          </div>
+          <div class="dsa-row">
+            <span class="dsa-key">Nodes Explored:</span>
+            <span class="dsa-val" id="dsa-nodes-count">-- nodes</span>
+          </div>
+          <div class="dsa-row">
+            <span class="dsa-key">Execution Latency:</span>
+            <span class="dsa-val green" id="dsa-latency">-- µs</span>
+          </div>
+          <div class="dsa-row">
+            <span class="dsa-key">Search Space Pruning:</span>
+            <span class="dsa-val" id="dsa-efficiency">--</span>
+          </div>
+          <div class="dsa-row">
+            <span class="dsa-key">Time Complexity:</span>
+            <span class="dsa-val code-font" id="dsa-time-complexity">O((V + E) log V)</span>
+          </div>
+          <div class="dsa-row">
+            <span class="dsa-key">Data Structures:</span>
+            <span class="dsa-val code-font">Adjacency List + Min-Heap</span>
+          </div>
+        </div>
+
+        <!-- Explored Nodes Visualization Tags -->
+        <div class="explored-tags-container">
+          <div class="tags-label">EXPLORED SEARCH NODES:</div>
+          <div class="explored-tags" id="explored-tags-list">
+            <span class="no-tags">Compute route to view search traversal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Contingency Detour Box -->
+      <div class="telemetry-card" id="contingency-card">
+        <div class="card-header">
+          <span class="card-icon">⚠</span>
+          <h3>DYNAMIC REROUTE CONTINGENCY</h3>
+        </div>
+        <div class="contingency-body" id="contingency-body">
+          <div class="status-ok">✔ Normal flight corridors nominal. No waypoint outages active.</div>
+        </div>
+      </div>
+
+      <!-- Route Waypoint Flight Plan Table -->
+      <div class="telemetry-card flex-grow">
+        <div class="card-header">
+          <span class="card-icon">📋</span>
+          <h3>NAVIGATION LOG (FLIGHT PLAN)</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="nav-table">
+            <thead>
+              <tr>
+                <th>LEG</th>
+                <th>FIX ID</th>
+                <th>TYPE</th>
+                <th>COURSE</th>
+                <th>DIST</th>
+                <th>SPEED</th>
+              </tr>
+            </thead>
+            <tbody id="flight-plan-tbody">
+              <tr><td colspan="6" class="placeholder-row">Select origin and destination to generate nav log</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Benchmark Modal Dialog -->
+  <dialog id="benchmark-modal" class="cyber-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📊 DSA BENCHMARK COMPARISON MATRIX</h2>
+        <button id="btn-close-modal" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Automated side-by-side execution of <strong>A* Search</strong>, <strong>Dijkstra's Algorithm</strong>,
+          and <strong>BFS (Breadth-First Search)</strong> across real transoceanic and continental flight routes.
+        </p>
+        <div id="benchmark-results-container">
+          <div class="loader-spinner">Benchmarking algorithms...</div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Tooltip Element -->
+  <div id="tooltip" class="cyber-tooltip"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
