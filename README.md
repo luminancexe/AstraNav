@@ -39,11 +39,11 @@ This project models global and regional airspace, oceanic waypoint tracks, jetst
 ### 1. Great-Circle Geodesic Distance (Haversine Formula)
 Computes the true spherical distance between two aeronautical fixes $(\phi_1, \lambda_1)$ and $(\phi_2, \lambda_2)$:
 $$a = \sin^2\left(\frac{\Delta\phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta\lambda}{2}\right)$$
-$$d = 2 R \cdot \operatorname{atan2}\left(\sqrt{a}, \sqrt{1-a}\right) \quad (\text{where } R = 6371\text{ km})$$
+$$d = 2 R \cdot \text{atan2}\left(\sqrt{a}, \sqrt{1-a}\right) \quad (\text{where } R = 6371\text{ km})$$
 
 ### 2. Initial Flight Track Bearing
 Initial true heading angle $\theta$ in degrees $[0^\circ, 360^\circ)$:
-$$\theta = \operatorname{atan2}\left(\sin(\Delta\lambda)\cos(\phi_2), \; \cos(\phi_1)\sin(\phi_2) - \sin(\phi_1)\cos(\phi_2)\cos(\Delta\lambda)\right)$$
+$$\theta = \text{atan2}\left(\sin(\Delta\lambda)\cos(\phi_2), \; \cos(\phi_1)\sin(\phi_2) - \sin(\phi_1)\cos(\phi_2)\cos(\Delta\lambda)\right)$$
 
 ### 3. Atmospheric Wind Triangle & Ground Speed
 Given true airspeed $V_{\text{TAS}}$, flight course $\theta$, and wind aloft vector $(W_{\text{speed}}, W_{\text{dir}})$:
