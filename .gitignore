@@ -1,0 +1,29 @@
+# Compiled class files
+out/
+bin/
+*.class
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual machines & logs
+*.log
+sources.txt
+
+# OS Generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.idea/
+*.iml
+.vscode/
+*.swp
+*~
