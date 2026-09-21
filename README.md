@@ -38,23 +38,44 @@ This project models global and regional airspace, oceanic waypoint tracks, jetst
 
 ### 1. Great-Circle Geodesic Distance (Haversine Formula)
 Computes the true spherical distance between two aeronautical fixes $(\phi_1, \lambda_1)$ and $(\phi_2, \lambda_2)$:
-$$a = \sin^2\left(\frac{\Delta\phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta\lambda}{2}\right)$$
-$$d = 2 R \cdot \text{atan2}\left(\sqrt{a}, \sqrt{1-a}\right) \quad (\text{where } R = 6371\text{ km})$$
+
+$$
+a = \sin^2\left(\frac{\Delta\phi}{2}\right) + \cos(\phi_1)\cos(\phi_2)\sin^2\left(\frac{\Delta\lambda}{2}\right)
+$$
+
+$$
+d = 2 R \cdot \text{atan2}\left(\sqrt{a}, \sqrt{1-a}\right) \quad (\text{where } R = 6371\text{ km})
+$$
 
 ### 2. Initial Flight Track Bearing
 Initial true heading angle $\theta$ in degrees $[0^\circ, 360^\circ)$:
-$$\theta = \text{atan2}\left(\sin(\Delta\lambda)\cos(\phi_2), \; \cos(\phi_1)\sin(\phi_2) - \sin(\phi_1)\cos(\phi_2)\cos(\Delta\lambda)\right)$$
+
+$$
+\theta = \text{atan2}\left(\sin(\Delta\lambda)\cos(\phi_2), \; \cos(\phi_1)\sin(\phi_2) - \sin(\phi_1)\cos(\phi_2)\cos(\Delta\lambda)\right)
+$$
 
 ### 3. Atmospheric Wind Triangle & Ground Speed
 Given true airspeed $V_{\text{TAS}}$, flight course $\theta$, and wind aloft vector $(W_{\text{speed}}, W_{\text{dir}})$:
-$$V_{\text{tailwind}} = W_{\text{speed}} \cos(W_{\text{to}} - \theta)$$
-$$V_{\text{crosswind}} = W_{\text{speed}} \sin(W_{\text{to}} - \theta)$$
-$$V_{\text{ground}} = \sqrt{V_{\text{TAS}}^2 - V_{\text{crosswind}}^2} + V_{\text{tailwind}}$$
+
+$$
+V_{\text{tailwind}} = W_{\text{speed}} \cos(W_{\text{to}} - \theta)
+$$
+
+$$
+V_{\text{crosswind}} = W_{\text{speed}} \sin(W_{\text{to}} - \theta)
+$$
+
+$$
+V_{\text{ground}} = \sqrt{V_{\text{TAS}}^2 - V_{\text{crosswind}}^2} + V_{\text{tailwind}}
+$$
 
 Eastbound transoceanic flights along the North Atlantic Tracks (NAT) catch the jetstream (+95 knot tailwind), increasing ground speed to over 1050 km/h and significantly cutting fuel burn, while westbound flights detour along southern tracks to avoid severe headwinds.
 
 ### 4. Aerodynamic Fuel Burn Equation
-$$\text{Fuel} = \left(\frac{d}{V_{\text{ground}}}\right) \cdot \dot{m}_{\text{base}} \cdot \left(1.0 + \frac{m_{\text{payload}}}{100\,000} \cdot 0.15\right) \cdot \kappa_{\text{turbulence}}$$
+
+$$
+\text{Fuel} = \left(\frac{d}{V_{\text{ground}}}\right) \cdot \dot{m}_{\text{base}} \cdot \left(1.0 + \frac{m_{\text{payload}}}{100\,000} \cdot 0.15\right) \cdot \kappa_{\text{turbulence}}
+$$
 
 ---
 
